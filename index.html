@@ -1,816 +1,429 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMASH KARTS • LAN Edition</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: linear-gradient(#0a0a2a, #1a1a5a);
-            color: white;
-            font-family: 'Press Start 2P', sans-serif;
-            overflow: hidden;
-            image-rendering: pixelated;
-        }
-        
-        /* SMASH KARTS style UI - bright, chunky, cartoon */
-        .screen {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(180deg, #ff8800 0%, #ff2200 100%);
-            text-shadow: 4px 4px 0 #000;
-        }
-        
-        .screen h1 {
-            font-size: 4.5rem;
-            color: #ff0;
-            margin-bottom: 30px;
-            text-shadow: 6px 6px 0 #000;
-            animation: titlePulse 1s infinite alternate;
-        }
-        
-        @keyframes titlePulse {
-            from { transform: scale(0.95); }
-            to { transform: scale(1.05); }
-        }
-        
-        button {
-            background: #ffff00;
-            color: #000;
-            font-family: 'Press Start 2P', sans-serif;
-            font-size: 1.8rem;
-            padding: 20px 60px;
-            margin: 15px;
-            border: 8px solid #000;
-            border-radius: 15px;
-            cursor: pointer;
-            box-shadow: 8px 8px 0 #000;
-            transition: all 0.1s;
-        }
-        
-        button:hover {
-            transform: translateY(-4px);
-            box-shadow: 12px 12px 0 #000;
-        }
-        
-        button:active {
-            transform: translateY(4px);
-            box-shadow: 4px 4px 0 #000;
-        }
-        
-        input {
-            font-family: 'Press Start 2P', sans-serif;
-            font-size: 1.5rem;
-            padding: 20px;
-            margin: 15px;
-            width: 400px;
-            border: 8px solid #000;
-            background: #fff;
-            color: #000;
-            text-align: center;
-        }
-        
-        .hud {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            padding: 15px 25px;
-            border: 6px solid #ffff00;
-            font-size: 1.2rem;
-            color: #ffff00;
-            z-index: 100;
-            pointer-events: none;
-        }
-        
-        #game-container {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: none;
-        }
-        
-        #game-canvas {
-            display: block;
-        }
-        
-        #name-label {
-            position: absolute;
-            font-family: 'Press Start 2P', sans-serif;
-            font-size: 18px;
-            color: #ffff00;
-            text-shadow: 3px 3px 0 #000;
-            pointer-events: none;
-            z-index: 200;
-            white-space: nowrap;
-        }
-        
-        .powerup-notice {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #00ff00;
-            color: #000;
-            font-size: 2rem;
-            padding: 20px 60px;
-            border: 8px solid #000;
-            display: none;
-            z-index: 300;
-            animation: pop 0.3s;
-        }
-        
-        .lobby-code {
-            font-size: 2rem;
-            background: #000;
-            color: #ffff00;
-            padding: 15px 30px;
-            border: 6px solid #ffff00;
-            margin: 20px;
-        }
-        
-        .guest-notice {
-            font-size: 1rem;
-            background: #00ff88;
-            color: #000;
-            padding: 8px 20px;
-            border: 4px solid #000;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
+<!DOCTYPE html><html xmlns="https://www.w3.org/1999/xhtml" lang="en-US"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, maximum-scale=1.0, initial-scale=1.0, user-scalable=no, minimal-ui" /><title>Smash Karts</title><meta name="description" content="In Smash Karts, you need to drive your kart, pick up weaponry, and blow all other karts! Join Smash Karts today and retrieve the invincible glory!"><meta name="keywords" content="smash karts"><meta name="title" content="Smash Karts"><meta property="fb:app_id" content=""><meta property="og:title" content="Smash Karts"><meta property="og:site_name" content="Smash Karts"><link rel="image_src" href="/data/image/smart-karts.png" /><meta property="og:type" content="article" /><meta property="og:url" content="https://smash-karts.io/smash-karts" /><meta property="og:description" content="In Smash Karts, you need to drive your kart, pick up weaponry, and blow all other karts! Join Smash Karts today and retrieve the invincible glory!" /><meta property="og:image" content="/data/image/smart-karts.png" /><link rel="apple-touch-icon" href="/data/image/smart-karts.png" /> <style>body{color:#000;background-color:#E55521;border:none;margin:0;font-family:Roboto,sans-serif}h1{font-size:1.8em;font-family:Roboto,sans-serif;line-height:1.167em}h1,h1 a,h1 a:visited{color:#000}h2{color:#000;line-height:1em}header{height:60px}p{line-height:1.8em}.boxInner2,.boxInner3{height:208px;width:180px;background:#2a2a2a;color:#fff}.boxInner2 a,.boxInner3 a{color:#626262}.boxInner,.boxInner2,.boxInner3{margin:4px 8px 12px;position:relative}.boxInner3 img{border-radius:5px}.titleBox{bottom:0;width:170px;background-color:#3d3d3d;border-radius:0 0 6px 6px;font:15px lucida sans,sans-serif;padding:5px;overflow:hidden;position:absolute;color:#eee}a{text-decoration:none;color:#000}.morelinks a{font-weight:600;font-size:15px!important}#items li,.navlink,.navlink a,ul.tabs li{display:inline-block}.logo{padding:15px}.logo a{font-size:20px;color:#ffc600;font-weight:700}::placeholder{color:#cbcbcb}#content{text-align:center;background:#fff}ol,ul{padding:0}.favorite{font-size:30px;padding-right:10px}.tag-carousel-title h1 a{color:#fff}.fgh1{float:left}.tag-more{margin-top:38px;margin-left:10px;display:inline-block}.tag-carousel{width:90%;margin:auto;padding:15px;position:relative}.tag-carousel-title{clear:both;padding-left:15px;float:left}.slider{flex-wrap:wrap;flex-direction:column;height:460px}.slider,.slider2{display:flex;width:100%;overflow:hidden}.align-right{float:right}#mySidebar{height:100%;width:180px;background:#000;position:fixed!important;overflow:hidden;z-index:999999}#mySidebar:hover{overflow:auto}a.sidebar-bar-item{display:block;padding:5px;color:#ddd!important;text-decoration:none}a.sidebar-bar-item:hover{background:#19273b;text-decoration:none}#mySidebar::-webkit-scrollbar{width:7px}#mySidebar::-webkit-scrollbar-thumb{background:rgba(168,168,168,.8)}#searchform input[type=text]{border-radius:2px;width:50%;font-size:18px;height:10px;color:#000;background-color:#000;border:1px solid #4b4b4b;padding:10px}.navlink button{margin:0 10px;color:#000;background-color:#575757;border:none;border-radius:5px;padding:5px;font-size:x-large;width:55px;display:none}.navlink button:focus{outline:0}button.btn.btn-primary{border-radius:0;font-size:16px;height:33px;border:0 solid #000;background-color:#181818;padding:0 15px}#info-box h3{padding:20px 0 0;margin:0 0 20px}.searchbar{margin-right:20px}@media only screen and (max-width:480px){#back-to-top,.login{display:none}#how-to p,#description p{max-width:100%}#searchform input[type=text]{width:155px}.searchbar{width:0%;padding:0}#info-box .align-right{float:none}#how-to,#description{max-width:100%}body{overflow:hidden}#extra-desc{padding:15px!important}#topnav{height:60px;padding:10px}#mySidebar{overflow-y:auto}.tagwrap{padding:1px}.s2,.s,.as,.dda,.rr{display:none}}.rr{margin:auto;float:right;padding:10px}@media(max-width:850px) and (min-width:481px){#searchform input[type=text]{width:77%}.searchbar{width:70%;padding:15px 0 0 7%}#extra-desc{padding:20px}#mySidebar{overflow-y:auto}}@media screen and (max-width:950px){#mySidebar{display:none}#topnav{margin-left:0}#content{margin-left:0}.navlink button{display:block}}@media screen and (min-width:1125px){.icon-search{display:none}}@media screen and (max-width:1125px){.searchbar{display:none}.sub-menu ul li{margin:0}.favorite{position:absolute;padding-top:5px;right:125px}button.openBtn{width:50px;margin:-1px;position:absolute;margin:10px;right:50px;border:0;background:#181818}}.overlay{height:100%;width:100%;display:none;position:fixed;z-index:999;top:0;left:0;background-color:#000;background-color:rgba(0,0,0,.9)}.overlay-content{position:relative;top:46%;width:80%;text-align:center;margin-top:30px;margin:auto}.overlay .closebtn{position:absolute;top:50px;right:45px;font-size:60px;cursor:pointer;color:#fff}.overlay .closebtn:hover{color:#ccc}.overlay input[type=text]{padding:15px;font-size:17px;border:none;float:left;width:75%;background:#fff}.overlay input[type=text]:hover{background:#f1f1f1}.overlay button{float:left;padding:15px;background:#ddd;font-size:17px;border:none;cursor:pointer}.overlay button:hover{background:#bbb}.icon-search{color:#fff;font-size:24px}@font-face{font-family:icomoon;src:url(/themes/smash-karts/resources/fonts/icomoon.eot?38kjjm);src:url(/themes/smash-karts/resources/fonts/icomoon.eot?38kjjm#iefix) format("embedded-opentype"),url(/themes/smash-karts/resources/fonts/icomoon.ttf?38kjjm) format("truetype"),url(/themes/smash-karts/resources/fonts/icomoon.woff?38kjjm) format("woff"),url(/themes/smash-karts/resources/fonts/icomoon.svg?38kjjm#icomoon) format("svg");font-weight:400;font-style:normal;font-display:block}[class^=icon-],[class*=" icon-"]{font-family:icomoon!important;speak:never;font-style:normal;font-weight:400;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.icon-bars:before{content:"\e900"}.icon-search:before{content:"\e986"}.icon-heart:before{content:"\e9da"}.navbar{background:#181818;position:fixed;top:0;left:0;width:100%;max-height:100vh;display:flex;flex-direction:column;z-index:9995}.brand-and-icon{display:flex;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid #4c4c4c}.navbar-brand{color:#fbb12b;font-size:1.3rem;width:150px;padding:10px 0 0 10px;letter-spacing:3px;font-weight:700}.navbar-toggler{background:0 0;font-size:1.8rem;cursor:pointer;color:#fff;padding:.2rem .5rem;transition:all .4s ease;border:2px solid #ababab;border-radius:4px}.navbar-toggler:hover{opacity:.7}.navbar-collapse{overflow-y:scroll;display:none}.navbar-nav>li>a{text-transform:uppercase;font-size:1.1rem;font-weight:700;display:block;padding:.6rem 0 0 .6rem;margin:.2rem 0;border-bottom:1px solid #2c2c2c;border-radius:1px;position:relative;transition:all .4s ease}.drop-icon{position:absolute;right:10px;top:50%;transform:translateY(-50%)}.navbar-nav>li>a:hover{opacity:.7}.sub-menu h4{text-transform:capitalize;font-size:1rem;padding:.5rem 0}.sub-menu ul li{text-transform:capitalize;list-style:none;width:200px;font-size:.95rem}.sub-menu ul li a:hover{opacity:.9}.sub-menu{display:none}@media screen and (min-width:992px){.navbar{flex-direction:row;align-items:center;position:fixed;border:1px solid;border-color:#525252}.navbar-toggler{display:none}.brand-and-icon{border-bottom:none;padding:0}.navbar-collapse{display:block!important;overflow-y:hidden;flex:1 0 auto}.navbar-nav{display:flex;margin:0}.navbar-nav>li>a{border-bottom:none;margin:0 .4rem;padding:1.7rem .5rem 1rem;font-size:.8rem}.sub-menu{position:absolute;left:0;width:100%;top:100%;background:#323232}.navbar-nav>li:hover .sub-menu{display:grid!important;grid-template-columns:repeat(4,1fr);padding:10px 0 10px 0}.navbar-nav>li{list-style-type:none}.navbar-nav>li:hover{border-bottom-color:#000}.sub-menu-item{padding-left:15%}.openBtn{background:#181818;border:0;display:none}}.favorite span.icon-heart{color:red}.post-views.entry-meta>span{margin-right:0!important;font:16px/1}.post-views.entry-meta>span.post-views-icon.dashicons{display:inline-block;font-size:16px;line-height:1;text-decoration:inherit;vertical-align:middle}.form-search #srch-term{background-color:#fff!important}.form-search .openBtn{}.form-search .openBtn span.icon-search{display:block}#myOverlay button{float:left;padding:11px;background:#ddd;font-size:22px;border:none;cursor:pointer;margin-left:-5px}#myOverlay button span.icon-search::before{color:#000}#extra-desc{text-align:left;margin:10px}#extra-desc h1{text-align:center}#playgame{display:grid;margin:20px 0}#how-to p,#description p{max-width:75%;line-height:1.8em}.as,.as2{max-height:93px;text-align:center}ul#breadcrumb{padding-top: 10px; text-transform: uppercase;display:inline-flex;list-style:none;padding-left:10px;font-size:15px;display:flex;flex-flow:wrap}ul#breadcrumb li+li:before{padding:5px;color:#13aeff;content:"/\00a0"}.playbutton{align-items:center;padding:0 112px;height:50vh;display:flex;flex-wrap:wrap;background:#181818;border:1px solid #383b3e;border-radius:5px}.ptb img{border-radius:100px;margin-top:20px}#info{padding:0 7%;min-height:400px}ul.tabs{padding:15px;text-align:center;margin:auto;background:#E55521}.tags li{margin:5px}.tags{display:flex;padding:25px 0;flex-wrap:wrap}.tags a,.tags a:visited{border:1px solid #24617b;font-size:.917em!important;font-weight:600;padding:8px;-webkit-border-radius:2px;-moz-border-radius:2px;border-radius:10px}.playnowtext{font-size:50px;color:#fff;display:contents;cursor:pointer;padding:30px 10px;font-weight:700}#info-box{padding:5px 0 30px}#info-box a{}#info-box ul{line-height:1.8em}.midbox{font-size:17px;letter-spacing:2px;text-align:left;max-width:100%;min-height:425px}.midbox h1{color:#e4e4e4;padding-bottom:13px}.tab-content{padding:10px}ul.tabs li{color:#fafafa;padding:3px;cursor:pointer;width:230px;font-weight:600}ul.tabs li.current{color:#eee;border-radius:3px;border:1px solid #a0a0a0}.tab-content.current{display:inherit}@media(hover:none){.nomobile{display:none}}@media screen and (max-width:813px){#info{padding:0 10px}#extra-desc{padding:7px}.playbutton{margin:10px;padding:25px;justify-content:center}ul.tabs{display:none}ul.tabs li{width:20%}}#how-to button{font-weight:600}.align-right{float:right}#mySidebar{height:100%;width:180px;background:#000;position:fixed!important;overflow:hidden;z-index:999999}#mySidebar:hover{overflow:auto}a.sidebar-bar-item{display:block;padding:5px;color:#ddd!important;text-decoration:none}a.sidebar-bar-item:hover{background:#19273b;text-decoration:none}#mySidebar::-webkit-scrollbar{width:7px}#mySidebar::-webkit-scrollbar-thumb{background:rgba(168,168,168,.8)}#searchform input[type=text]{border-radius:2px;width:50%;font-size:18px;height:10px;color:#000;background-color:#000;border:1px solid #4b4b4b;padding:10px}.navlink button{margin:0 10px;color:#000;background-color:#575757;border:none;border-radius:5px;padding:5px;font-size:x-large;width:55px;display:none}.navlink button:focus{outline:0}button.btn.btn-primary{border-radius:0;font-size:16px;height:33px;border:0 solid #000;background-color:#181818;padding:0 15px}#info-box h3{padding:20px 0 0;margin:0 0 20px}@media only screen and (max-width:480px){#back-to-top,.login{display:none}#how-to p,#description p{max-width:100%}#searchform input[type=text]{width:155px}.searchbar{width:0%;padding:0}#info-box .align-right{float:none}#how-to,#description{max-width:100%}body{overflow:hidden}#extra-desc{padding:15px!important}#topnav{height:60px;padding:10px}#mySidebar{overflow-y:auto}.tagwrap{padding:1px}.s2,.s,.as,.dda,.rr{display:none}}.rr{margin:auto;float:right;padding:10px}ul.tags{list-style:none}#info-box ul{line-height:1.8em}#description ul,#description ol{padding:5px 30px}.icon-arrows-alt:before{content:"\64"}.hidden{display:none!important}#playgame{max-width:800px;margin:0 auto}#game{width:100%}.tagwrap{display:grid;grid-column-gap:15px;grid-row-gap:25px;padding:15px;grid-template-columns:repeat(auto-fit,minmax(185px,1fr) );grid-template-rows:auto [last];color:#444;grid-auto-flow:dense}.tbar{grid-column:1/-1}.s{grid-column:-3/span 2;grid-row:3/span 2;width:360px;margin:auto}.s2{grid-column:-2;grid-row:7/span 3;width:185px;margin:auto}.box{background-color:#393939;width:180px;height:205px;color:#eee;position:relative;margin:auto}meta{display:none}.box a{color:#626262;text-decoration:none}.tb{bottom:0;width:170px;color:#eee;background-color:#2d2d2d;font:15px lucida sans,sans-serif;padding:5px;position:absolute}.wp-pagenavi{text-align:center;bottom:0;z-index:99;width:100%;clear:both;margin:0;padding:7px 0;border-top:1px solid #1d5863;border-bottom:1px solid #1d5863;background:rgba(5,26,66,.7)}.wp-pagenavi-bot{text-align:center;position:absolute;padding:2px;right:0;background-color:#222}.wp-pagenavi a,.wp-pagenavi span{display:inline-block;padding:10px;margin:2px;font-size:1em;border:1px solid #19a7f2;color:#feffff;font-weight:700;background-color:#0f3840;border-radius:3px}.wp-pagenavi a:hover{background:#0d51c1}.wp-pagenavi span.current{border:none;background:#009835;box-shadow:inset 0 0 8px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.1)}@media screen and (min-width:767px){.wp-pagenavi{position:sticky;margin-top:20px}}#btn_fullscreen{color:#fff;float:right;cursor:pointer}#btn_fullscreen img.icon-image{max-width:30px}img.logo{max-height:45px;padding:0}
+	nav.navbar{background: #1067BA; color: #fff;}</style><script>(function (i, s, o, g, r, a, m) {
+ i['GoogleAnalyticsObject'] = r;
+ i[r] = i[r] || function () {
+ (i[r].q = i[r].q || []).push(arguments)
+ }, i[r].l = 1 * new Date();
+ a = s.createElement(o),
+ m = s.getElementsByTagName(o)[0];
+ a.async = 1;
+ a.src = g;
+ m.parentNode.insertBefore(a, m)
+ })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
-    <!-- LOGIN / SIGN UP SCREEN -->
-    <div id="login-screen" class="screen" style="display: flex;">
-        <h1>SMASH KARTS</h1>
-        <p style="font-size:1.5rem; margin-bottom:40px;">LAN RACING • SAME WIFI ONLY</p>
-        
-        <button onclick="showSignup()">SIGN UP</button>
-        <button onclick="showLogin()">LOG IN</button>
-        <button onclick="playAsGuest()" style="background:#00ff88;">PLAY AS GUEST</button>
-        
-        <div style="position:absolute; bottom:30px; font-size:1rem; opacity:0.8;">
-            Data saves automatically in your browser • Works on same WiFi
-        </div>
-    </div>
+ ga('create', 'UA-219986463-1', 'auto');
+ ga('send', 'pageview');</script></head>
+<header><nav class="navbar"><div class="brand-and-icon"><a href="/" class="navbar-brand"><img class="logo" src="/data/image/options/smash-karts-io.png" /></a><button type="button" class="navbar-toggler"><span class="icon-bars"></span></button></div><button class="openBtn" onclick="openSearch()"> <span class="icon-search"></span> </button><div class="navbar-collapse"><ul class="navbar-nav"></ul></div><div class="searchbar"><div role="search" class="form-search"><input type="text" id="srch-term" name="s" placeholder="Search for a Game" /></div></div><div id="myOverlay" class="overlay"><span class="closebtn" onclick="closeSearch()" title="Close Overlay">x</span><div class="overlay-content"><form action="/search"><input type="text" placeholder="Search.." name="q" /><button type="submit"><span class="icon-search"></span></button></form></div></div><script type="text/javascript">window.addEventListener("DOMContentLoaded", function () {
+ //Search
+ var domain_url = 'https://smash-karts.io';
+ jQuery('#srch-term').bind('keypress', function (e) {
+ var code = e.keyCode || e.which;
+ if (code == 13) { //Enter keycode
+ var value = jQuery("#srch-term").val();
+ if (jQuery.trim(value) != '') {
+ var $rex_rule = /[ \-\.?:\\\/\_\']+/g;
+ value = value.replace($rex_rule, " ").trim().toLowerCase();
+ window.location.href = domain_url + "/search?q=" + value;
+ }
+ }
+ });
 
-    <!-- SIGN UP SCREEN -->
-    <div id="signup-screen" class="screen">
-        <h1>CREATE ACCOUNT</h1>
-        <input id="signup-name" type="text" placeholder="YOUR RACER NAME" maxlength="12">
-        <input id="signup-pass" type="password" placeholder="PASSWORD (just for show)">
-        <button onclick="signup()">CREATE RACER</button>
-        <button onclick="backToLogin()" style="background:#aaa;">← BACK</button>
-    </div>
+ jQuery('#searchsubmit').click(function () {
+ var value = jQuery("#srch-term").val();
+ if (value != '') {
+ var $rex_rule = /[ \-\.?:\\\/\_\']+/g;
+ value = value.replace($rex_rule, " ").trim().toLowerCase();
+ window.location.href = domain_url + "/search?q=" + value;
+ }
+ });
 
-    <!-- LOG IN SCREEN -->
-    <div id="login-screen-form" class="screen">
-        <h1>LOG IN</h1>
-        <input id="login-name" type="text" placeholder="YOUR RACER NAME" maxlength="12">
-        <input id="login-pass" type="password" placeholder="PASSWORD">
-        <button onclick="login()">RACE IN</button>
-        <button onclick="backToLogin()" style="background:#aaa;">← BACK</button>
-    </div>
+ });
+</script><div class="favorite"><a href="/favorite"><span class="icon-heart"></span></a></div></nav></header><div id="content">
+<ul itemscope itemtype="https://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a itemprop="item" href="https://smash-karts.io"><span itemprop="name">Smash Karts</span></a><meta itemprop="position" content="1"></li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a itemtype="https://schema.org/WebPage" itemprop="item" itemid="https://smash-karts.io/racing.games" href="https://smash-karts.io/racing.games"><span itemprop="name"> Racing </span></a><meta itemprop="position" content="2"></li><li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><a itemtype="https://schema.org/WebPage" itemprop="item" itemid="https://smash-karts.io/arcade.games" href="https://smash-karts.io/arcade.games"><span itemprop="name"> Arcade </span></a><meta itemprop="position" content="3"></li></ul><div id="playscreen"><div class="dda"></div><div id="playgame"><div class="score" style="display: block;"><h1>Smash Karts</h1><a id="btn_fullscreen" title="full_screen" onclick="iPanel.toggleFull();"> <img class="icon-image" src="https://friday-nightfunkin.com/themes/fridaynightfunkin/resources/images/fullscreen.png?v=1"></a></div><div id="game"></div><div class="ratingthis" itemscope itemtype="https://schema.org/Game"><span class="rating" id="default-demo" data-id="1" style="cursor: pointer; width: 100px;" data-score="3.33" data-readonly=""></span><span itemprop="name">Smash Karts</span><div itemprop="aggregateRating" itemscope="" itemtype="https://schema.org/AggregateRating" class="aggregate-text"><span property="v:count" itemprop="reviewCount" id="countrate">6</span> votes -<span rel="v:rating"><span typeof="v:Rating"><span property="v:average" itemprop="ratingValue" id="averagerate"> 3.33</span>/<span itemprop="bestRating" content="5" property="v:best">5</span> </span></span></div></div>
+<script>window.addEventListener("DOMContentLoaded", function () {
+ var readdddonly;
+ readdddonly = jQuery('#default-demo').attr('data-readonly');
+ jQuery('#default-demo').raty({
+ readOnly: readdddonly,
+ cancelOff: '/themes/smash-karts/resources/plugin/raty/images/cancel-off.png',
+ cancelOn: '/themes/smash-karts/resources/plugin/raty/images/cancel-on.png',
+ starHalf: '/themes/smash-karts/resources/plugin/raty/images/star-half-big.png',
+ starOff: '/themes/smash-karts/resources/plugin/raty/images/star-off-big.png',
+ starOn: '/themes/smash-karts/resources/plugin/raty/images/star-on-big.png',
+ half: true,
+ number: 5,
+ numberMax: 5,
+ score: function () {
+ return jQuery(this).attr('data-score');
+ },
+ click: function (score, evt) {
+ var game_id = jQuery(this).attr('data-id');
+ var rate = jQuery(this).attr('data-score');
+ var url = '/game-rate.ajax';
+ var data = {'game_id': game_id, 'score': score};
+ jQuery.ajax({
+ type: "POST",
+ url: url,
+ data: data,
+ cache: false,
+ success: function (html) {
+ var data = jQuery.parseJSON(html);
+ var average = (Math.round(parseFloat(data.rate_score) / parseFloat(data.rate_count) * 100) / 100);
+ jQuery('#countrate').text(data.rate_count);
+ jQuery('#averagerate').text(average);
 
-    <!-- MAIN MENU -->
-    <div id="main-menu" class="screen" style="background: linear-gradient(#00aaff, #ff00aa);">
-        <h1 id="menu-title">WELCOME, <span id="display-name"></span>!</h1>
-        
-        <button onclick="enterGarage()">GARAGE</button>
-        <button onclick="enterLobbies()">PLAY ONLINE (SAME WIFI)</button>
-        <button onclick="logout()">LOG OUT</button>
-        
-        <div style="position:absolute; bottom:30px; display:flex; gap:20px;">
-            <div style="background:rgba(0,0,0,0.6); padding:10px 20px; border:4px solid #000;">
-                MONEY: $<span id="money-display">500</span>
-            </div>
-            <div style="background:rgba(0,0,0,0.6); padding:10px 20px; border:4px solid #000;">
-                SPEED LV.<span id="speed-level-display">1</span>
-            </div>
-        </div>
-    </div>
+ jQuery('#default-demo').raty({
+ readOnly: true,
+ cancelOff: '/themes/smash-karts/resources/plugin/raty/images/cancel-off.png',
+ cancelOn: '/themes/smash-karts/resources/plugin/raty/images/cancel-on.png',
+ starHalf: '/themes/smash-karts/resources/plugin/raty/images/star-half-big.png',
+ starOff: '/themes/smash-karts/resources/plugin/raty/images/star-off-big.png',
+ starOn: '/themes/smash-karts/resources/plugin/raty/images/star-on-big.png',
+ half: true,
+ number: 5,
+ numberMax: 5,
+ score: score
+ });
+ },
+ error: function () {
+ jQuery('#default-demo').raty({
+ readOnly: true,
+ cancelOff: '/themes/smash-karts/resources/plugin/raty/images/cancel-off.png',
+ cancelOn: '/themes/smash-karts/resources/plugin/raty/images/cancel-on.png',
+ starHalf: '/themes/smash-karts/resources/plugin/raty/images/star-half-big.png',
+ starOff: '/themes/smash-karts/resources/plugin/raty/images/star-off-big.png',
+ starOn: '/themes/smash-karts/resources/plugin/raty/images/star-on-big.png',
+ half: true,
+ number: 5,
+ numberMax: 5,
+ score: rate,
+ });
+ }
+ });
+ }
+ });
+ });</script><style type="text/css">.rate-title {
+ display: none;
+ }
 
-    <!-- GARAGE (Customization + Upgrades) -->
-    <div id="garage-screen" class="screen" style="background: linear-gradient(#00ff88, #0088ff);">
-        <h1>GARAGE</h1>
-        <div style="display:flex; gap:60px; margin:40px 0;">
-            <!-- Car preview (simple 2D representation) -->
-            <div style="text-align:center;">
-                <div id="car-preview" style="width:200px; height:120px; background:#f00; border:12px solid #000; border-radius:20px; margin:0 auto; position:relative;">
-                    <div style="position:absolute; top:30px; left:20px; width:40px; height:40px; background:#000; border-radius:50%;"></div>
-                    <div style="position:absolute; top:30px; right:20px; width:40px; height:40px; background:#000; border-radius:50%;"></div>
-                    <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); font-size:2rem;">🏎️</div>
-                </div>
-                <p style="margin-top:20px;">YOUR KART</p>
-            </div>
-            
-            <div>
-                <h2 style="margin-bottom:20px;">UPGRADES</h2>
-                <div style="background:rgba(0,0,0,0.3); padding:20px; border:6px solid #000; width:420px;">
-                    <p>SPEED BOOST LV. <span id="upgrade-level">1</span> • $<span id="upgrade-cost">100</span></p>
-                    <button onclick="buySpeedUpgrade()" id="upgrade-btn" style="width:100%; margin-top:10px;">BUY SPEED UPGRADE</button>
-                </div>
-                
-                <p style="margin-top:30px; font-size:1rem;">Customization coming in full version!<br>Paint color changes in race.</p>
-            </div>
-        </div>
-        
-        <button onclick="exitGarage()" style="background:#ffff00;">← BACK TO MENU</button>
-    </div>
+ .rating{padding-right: 20px;}
 
-    <!-- LOBBIES SCREEN -->
-    <div id="lobbies-screen" class="screen" style="background: linear-gradient(#aa00ff, #ff00aa);">
-        <h1>ONLINE LOBBIES • SAME WIFI ONLY</h1>
-        
-        <div style="margin:30px 0;">
-            <p>Your Lobby Code:</p>
-            <div id="my-lobby-code" class="lobby-code">XXXXXX</div>
-            <button onclick="copyLobbyCode()" style="font-size:1rem; padding:10px 30px;">COPY CODE</button>
-        </div>
-        
-        <div style="margin:30px 0;">
-            <p>Join a Lobby</p>
-            <input id="join-code-input" type="text" placeholder="ENTER 6-DIGIT CODE" maxlength="6" style="width:300px;">
-            <button onclick="joinLobby()">JOIN LOBBY</button>
-        </div>
-        
-        <div style="margin-top:40px;">
-            <h2 style="margin-bottom:20px;">PUBLIC LOBBIES (fake for demo)</h2>
-            <div onclick="quickJoin()" style="background:rgba(255,255,255,0.2); padding:15px; margin:10px auto; width:500px; border:6px solid #000; cursor:pointer;">
-                LOBBY #1 • 3/8 players • Code: 69420
-            </div>
-            <div onclick="quickJoin()" style="background:rgba(255,255,255,0.2); padding:15px; margin:10px auto; width:500px; border:6px solid #000; cursor:pointer;">
-                LOBBY #2 • 1/8 players • Code: SMASH1
-            </div>
-        </div>
-        
-        <button onclick="exitLobbies()" style="background:#ffff00; margin-top:30px;">← BACK TO MENU</button>
-    </div>
+ .rating img {
+ height: 18px;
+ display: inline !important;
+ float: none;
+ width: 18px;
+ }
 
-    <!-- GAME SCREEN -->
-    <div id="game-container">
-        <canvas id="game-canvas"></canvas>
-        
-        <!-- HUD -->
-        <div class="hud" id="hud">
-            <div><span id="hud-name"></span></div>
-            <div>SPEED: <span id="speedometer">0</span></div>
-            <div>LAP: <span id="lap-counter">1/3</span></div>
-        </div>
-        
-        <!-- Name floating above car -->
-        <div id="name-label"></div>
-        
-        <!-- Power-up notice -->
-        <div id="powerup-notice" class="powerup-notice">SPEED BOOST!</div>
-        
-        <!-- In-game instructions -->
-        <div style="position:absolute; bottom:20px; left:20px; background:rgba(0,0,0,0.7); padding:10px 20px; font-size:0.9rem; border:4px solid #ffff00; display:flex; gap:30px; z-index:100;">
-            <div>WASD / ↑↓←→ = DRIVE</div>
-            <div>SPACE = JUMP</div>
-            <div>Hit yellow LUCKY BLOCKS for power-ups!</div>
-            <button onclick="exitRace()" style="font-size:0.8rem; padding:5px 15px; background:#ffff00;">EXIT RACE</button>
-        </div>
-    </div>
+ .aggregate-text {
+ font-size: 20px !important;
+ display: inline-block;
+ margin-bottom: 0;
+ font-weight: 700;
+ }
 
-<script>
-// ====================== PLAYER DATA & SAVE SYSTEM ======================
-let playerData = {
-    name: "",
-    money: 500,
-    speedLevel: 1,
-    password: "" // just for show
-};
+ .ratingthis {
+ text-align: center; 
+ margin-top: 20px;
+ }
+ span[itemprop="name"] {
+ display: none;
+ }</style><script type="text/javascript">window.addEventListener("DOMContentLoaded", function () {
+ var iframe_html = '<iframe id="iframehtml5" width="100%" height="100%" style="min-height:600px" src="/smash-karts.embed" frameborder="0" border="0" scrolling="no" class="iframe-default" allowfullscreen></iframe>';
+ $("#game").html(iframe_html);
+ });</script></div><div class="as2"></div></div>﻿ <section class="tag-carousel"><div class="tag-carousel-title"><div class="fgh1"><h2> You might also Like </h2></div></div><div id="game-related" class="slider"><div class="boxInner2"><a href="/stick-archers-battle"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/stick-archers-battle-img.png" alt="Stick Archers Battle" width="180" height="180" /><div class="titleBox">Stick Archers Battle</div></a></div><div class="boxInner2"><a href="/jetpack-joyride"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/jetpack-joyride-img.png" alt="Jetpack Joyride" width="180" height="180" /><div class="titleBox">Jetpack Joyride</div></a></div><div class="boxInner2"><a href="/love-tester-deluxe"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/love-tester-deluxe-img.png" alt="Love Tester Deluxe" width="180" height="180" /><div class="titleBox">Love Tester Deluxe</div></a></div><div class="boxInner2"><a href="/drawmaster"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/drawmaster-img.png" alt="Drawmaster" width="180" height="180" /><div class="titleBox">Drawmaster</div></a></div><div class="boxInner2"><a href="/bubble-fight-io"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/bubble-fight-io-img.png" alt="Bubble Fight IO" width="180" height="180" /><div class="titleBox">Bubble Fight IO</div></a></div><div class="boxInner2"><a href="/cake-amp-candy-business-tycoon"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/cake-amp-candy-business-tycoon-img.png" alt="Cake &amp; Candy Business Tycoon" width="180" height="180" /><div class="titleBox">Cake &amp; Candy Business Tycoon</div></a></div><div class="boxInner2"><a href="/fun-race-on-ice"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/fun-race-on-ice-img.png" alt="Fun Race On Ice" width="180" height="180" /><div class="titleBox">Fun Race On Ice</div></a></div><div class="boxInner2"><a href="/building-rush"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/building-rush-img.png" alt="Building Rush" width="180" height="180" /><div class="titleBox">Building Rush</div></a></div><div class="boxInner2"><a href="/amazing-anime-puzzle"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/amazing-anime-puzzle-img.png" alt="Amazing Anime Puzzle" width="180" height="180" /><div class="titleBox">Amazing Anime Puzzle</div></a></div><div class="boxInner2"><a href="/straw-hat-samurai-2"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/straw-hat-samurai-2-img.png" alt="Straw Hat Samurai 2" width="180" height="180" /><div class="titleBox">Straw Hat Samurai 2</div></a></div><div class="boxInner2"><a href="/cheating-exam"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/cheating-exam-img.png" alt="Cheating Exam" width="180" height="180" /><div class="titleBox">Cheating Exam</div></a></div><div class="boxInner2"><a href="/my-little-army"><span class="new"></span><img class="lazy" src="/themes/smash-karts/resources/images/spinner.svg" data-src="data/image/game/my-little-army-img.png" alt="My Little Army" width="180" height="180" /><div class="titleBox">My Little Army</div></a></div><div class="left-button"></div><div class="right-button"></div></div></section><script type="text/javascript">window.addEventListener("DOMContentLoaded", function () {
+ perform_slide("game-related", 2, 196);
+ });</script>
+<div class="midbox"><ul class="tabs"><li class="tab-link current" data-tab="info">Info</li><li class="tab-link show-comments" data-tab="review">Reviews</li></ul><div id="info" class="tab-content current"><div id="info-box"><div class="rr"></div><ul class="tags"><li class="cat-item"><a href="/racing.games">RACING</a></li><li class="cat-item"><a href="/arcade.games">ARCADE</a></li></ul><div id="description"><p><strong>ABOUT SMASH KARTS</strong></p><p><strong><em>Smash Karts is an awesome three-dimensional kart racing game in which you need to drive your kart, pick up weaponry, and blow all other karts!</em></strong></p><p><span>There are various online games that you can blow off all steam immediately in addition to having a whale of a time with your friends and your family but never forget to experience playing Smash Karts on our website. You may have a memorable and wonderful feeling!</span></p><p><span>Smash Kart - One of the most exciting battle royale racing games on our website. Carry out the extreme and exciting speed obstacle, master your vehicles and skills.&nbsp;</span></p><p><span>You will take on different competitors in the field, grabbing weapons and exploding other karts to win!</span></p><p><span>Smash Karts was created in 3D with WebGL and io. together with out-of-this-world 3D engines and 3D physics, you'll feel like you need to be behind the wheel.&nbsp;</span></p><p><span>You will battle your buddies in a kart competition to the completed line while enhancing power-ups and area code new tracks. Typically the game can be played by 1-4 players at once- exquisite for parties! Pick from numerous karts and race to fight against your buddies. Acquire power-ups to improve your kart's speed and even knock others off the track in this game</span></p><p><span>Smash Karts is an active game that enables you to race as a kart, using weapons to remove your opponents. Being a kart racer, it will be possible to customize your character, kart, and power-ups from the garage. With three-dimensional graphics and online multiplayer, Smash Karts is a fast-paced online game that will make your adrenaline pumping!</span></p><p><strong>HOW TO PLAY SMASH KART</strong></p><p><span>As a variety of online games, Smash Kart is not tapped to play, you can become a master easily thanks to reading all instructions:</span></p><ul><li><strong>Play games to earn XP</strong></li></ul><p><span>You need to deal with various other players in typically the arena for three or more minutes of kart-smashing mayhem.&nbsp;</span></p><p><span>There are usually several maps to be able to explore. Each general public game you enjoy will give you XP, which you may and thereafter use to gain levels.</span></p><p><span>Leveling up is necessary as it will certainly reward you featuring coins, hats, wheels, and character tokens. You can utilize character tokens inside the prized equipment in order to unlock fresh characters with various different levels of rarity.</span></p><ul><li><strong>Customize the kart</strong></li></ul><p><span>You need to select from a selection of wacky little character types and karts. Players can customize their kart and characters in the personalized menu.&nbsp;</span></p><p><span>There you will find a selection of karts, character types, hats, and vacation item</span></p><ul><li><strong>A variety of Kart Battle Games</strong></li></ul><p><span>You will have a great experience when fighting Kart games as we bring two awesome game modes together: deathmatch arena and kart driving.&nbsp;</span></p><p><span>Here are some top online games in which you will play the same explosive style of online game:</span></p><ul><li><strong>Kart Wars</strong><span> - an extremely chaotic multiplayer kart game inspired by Mario Kart in which you will pick from a range of characters and conquer the market.</span></li></ul><p><strong><strong>&nbsp;</strong></strong></p><ul><li><strong>Kart Fight</strong><span> - a kart market game with a twist where you have to knock other karts from the system and increase your character!</span></li></ul><p><span>There are various Kart games on our website that you can have fun with! Browse immediately!</span></p><p><strong>KEY FEATURES</strong></p><p><span>Smash Karts is an action-packed multiplayer kart battles game, thus you may have fun with this game and make friends with other players from four corners of this world instantaneously.</span></p><ul><li><span>You will level up, earn coins and save your stats in this game in order to win and defeat all other players</span></li><li><span>There are multiple weapons for you to choose from in this game ranging from miniguns to bombs</span></li><li><span>You need to customize karts and characters to make your own style and show up your ability related to the aesthetic field</span></li></ul><p><strong>RULES FOR SUCCESS</strong></p><p><span>Collect power-ups and modify your kart before each race to win! There are weapons and power-ups on the track to assist you, and some of them could make your opponent's life harder. You can also use the track to slow down your competitors by smashing them into walls and other obstacles.&nbsp;</span></p><p><span>Smash other players into pieces by shooting towards them or maybe bashing them taken care of. The more oppositions you smash, the more coins you collect. Coins are good for area code new karts! Commence your engines and possess some smashing fun! remember that the more players there are, the more chaotic it gets!</span></p><p><strong>DEVELOPER</strong></p><p><span>Smash Karts is created by Tall Team, they are also the developer of other excellent online games like Investor Island, Blast Ar Pro, &hellip;.</span></p><p>&nbsp;</p> <div id="how-to"><p><strong>CONTROLS:</strong></p><ul><li><span>You need to utilize WASD or the arrow keys to drive.</span></li><li><span>You have to use Space to fire the weapons.</span></li></ul><p>&nbsp;</p> </div></div></div></div><div id="review" class="tab-content"><div id="comments_area"><div class="comment_loading"></div><div id="list_comment"></div><div class="comment-load-more"></div><div class="make-comment"><form id="comment_form" class="form-group"> <div class="col-md-12 comment-notes"><span id="email-notes">Your email address will not be published.</span>
+Required fields are marked <span class="required">*</span></div><div class="col-md-12" id="comment_errors"></div><div class="col-md-4"><label>Name <span class="required">*</span></label> <input id="comment_author" name="comment_author" class="form-control" type="text" value="" size="50" maxlength="245"></div><div class="col-md-4"><label>Email <span class="required">*</span></label> <input id="comment_email" name="comment_email" type="input" value="" size="50" class="form-control" maxlength="100"></div><div class="col-md-4"><label>Website</label> <input id="comment_website" type="comment_website" name="website" type="input" value="" size="50" class="form-control" maxlength="200"></div><div class="col-md-12"><label>Content <span class="required">*</span></label></label> <textarea id="comment_content" name="comment_content" class="form-control" cols="49" rows="3" maxlength="65525"></textarea></div> <div class="col-md-12" style="padding-top:10px;padding-bottom:10px"> <div class="g-recaptcha" data-sitekey="6LdfqjIeAAAAABjW1lPSY2G9rAdTrqY-JgBU-92E"></div> <input type="hidden" class="hiddenRecaptcha required" name="comment_hiddenRecaptcha" id="comment_hiddenRecaptcha"> </div><div class="col-md-12 pull-center" style="padding-bottom: 10px;"><input name="submit" type="submit" class="submit btn btn-primary" value="Comment" /><input type="hidden" name="parent_id" id="parent_id" value="0" /> <input type="button" onclick="reply_all();
+ return false;" id="btn_cancel" class="submit btn btn-primary pull-right hidden" value="Cancel" /></div> </form></div><script>window.addEventListener("DOMContentLoaded", function () {
 
-function loadData() {
-    const saved = localStorage.getItem("smashkarts_lan_save");
-    if (saved) {
-        playerData = JSON.parse(saved);
-    }
-}
+ jQuery("#go_to_comment").click(function () {
+ jQuery("html, body").animate({scrollTop: jQuery("#comment_form").offset().top}, 1000);
+ });
+ jQuery("#comment_form").validate(
+ {
+ //set this to false if you don't what to set focus on the first invalid input
+ focusInvalid: false,
+ //by default validation will run on input keyup and focusout
+ //set this to false to validate on submit only onkeyup: false,
+ onfocusout: false,
+ //by default the error elements is a <label>errorElement: "div",
+ //place all errors in a <div id="errors"> element
+ errorPlacement: function (error, element) {
+ error.appendTo("div#comment_errors");
+ },
+ ignore: ".ignore",
+ rules: {
+ "comment_content": {
+ required: true,
+ maxlength: 65525
+ },
+ "comment_author": {
+ required: true,
+ maxlength: 200
+ },
+ "comment_email": {
+ required: true,
+ email: true,
+ maxlength: 100
+ },
+ comment_hiddenRecaptcha: {
+ required: function () {
+ if (grecaptcha.getResponse() == '') {
+ return true;
+ } else {
+ return false;
+ }
+ }
+ }
+ },
+ messages: {
+ "comment_content": {
+ required: "",
+ maxlength: ""},
+ "comment_author": {
+ required: "",
+ maxlength: ""
+ },
+ "comment_email": {
+ required: "",
+ email: "",
+ maxlength: ""
+ },
+ "comment_hiddenRecaptcha": {
+ required: "- Please verify you are human"
+ }
+ },
+ submitHandler: function () {
+ jQuery(".comment_loading").show();
+ var question_ajax = "/make-comment.ajax";
+ var content = jQuery("#comment_content").val();
+ var author = jQuery("#comment_author").val();
+ var email = jQuery("#comment_email").val();
+ var website = jQuery("#comment_website").val();
+ var parent_id = jQuery("#parent_id").val();
+ var metadataload = {};
+ metadataload.content = content;
+ metadataload.author = author;
+ metadataload.email = email;
+ metadataload.website = website;
+ metadataload.parent_id = parent_id;
+ metadataload.related_id = parseInt("0");
+ metadataload.related_url = "https://smash-karts.io/smash-karts";
+ jQuery.ajax({
+ url: question_ajax,
+ data: metadataload,
+ type: 'POST',
+ success: function (data) {
+ jQuery(".comment_loading").hide();
+ if (data != '')
+ {
+ var result = jQuery.parseJSON(data);
+ if (result.result === true)
+ {
+ var comment_data = result.comment;
+ var str_comment = "";
+ if (comment_data.parent_id == 0)
+ {
 
-function saveData() {
-    localStorage.setItem("smashkarts_lan_save", JSON.stringify(playerData));
-}
+ str_comment = "<div id='comment_" + comment_data.id + "' class='replyWrap your_comment clearAfter'><div class='listProfile'><span class='img'><img class='img img-thumbnail' alt='' src='/themes/smash-karts/resources/images/comments/profile-default.png' width='64' height='64'></span><span class='user'>" + comment_data.author + "</span></div><div class='listContent'>" + comment_data.content + "<div class='clearAfter'><div class='left rating'><span>Votes:</span><b class='voteUp' id='comment_voteup_" + comment_data.id + "'>+" + comment_data.like + " </b><span>/</span><b class='voteDown' id='comment_votedown_" + comment_data.id + "'>-" + comment_data.dislike + " </b></div><div class='right'><a class='icon comment' href='javascript:;' onclick='reply_to(" + comment_data.id + "); return false;' title='Add a comment to this comment' rel='nofollow'>Comment</a><a class='icon vote comment_vote_row_" + comment_data.id + " voteUp' href='javascript:;' onclick='comment_vote(" + comment_data.id + ",\"up\"); return false;' title='Vote this comment up (helpful)' rel='nofollow'>Vote up</a><a class='icon vote comment_vote_row_" + comment_data.id + " voteDown' href='javascript:;' onclick='comment_vote(" + comment_data.id + ",\"down\"); return false;' title='Vote this comment down (not helpful)' rel='nofollow'>Vote down</a><a class='icon report hidden' href='javascript:;' onclick='report_comment(" + comment_data.id + "); return false;' title='Report this comment as spam/abuse/inappropriate' rel='nofollow'>Report</a></div></div></div></div>";
+ if (comment_data.status == 'trash')
+ {
+ str_comment += "<p class='text-center'><i>Your comment is awaiting moderation</i></p>";
+ }
+ jQuery("#list_comment").prepend(str_comment);
+ } else
+ {
+ str_comment = "<div id='comment_" + comment_data.id + "' class='commentBlock your_comment clearAfter'> <div class='listProfile'> <span class='img'><img class='img img-cirle' alt='' src='/themes/smash-karts/resources/images/comments/profile-default.png' width='16' height='16'></span> <a class='user' href='javascript:;'>" + comment_data.author + "</a> </div> <div class='listContent'> " + comment_data.content + " </div> </div>";
+ if (comment_data.status == 'trash')
+ {
+ str_comment += "<p class='text-center'><i>Your comment is awaiting moderation</i></p>";
+ }
+ jQuery("#comment_" + comment_data.parent_id).append(str_comment);
+ jQuery("#comment_form").appendTo(".make-comment");
+ jQuery("#comment_form").removeClass("commentBlock");
+ reply_all();
+ }
 
-// ====================== GUEST MODE ======================
-function playAsGuest() {
-    const guestNum = Math.floor(1000 + Math.random() * 9000);
-    playerData = {
-        name: `GUEST${guestNum}`,
-        money: 300,
-        speedLevel: 1,
-        password: ""
-    };
-    // Guest data is session-only (does NOT load previous saves and does NOT persist after refresh)
-    document.getElementById("login-screen").style.display = "none";
-    enterMainMenu();
-}
+ jQuery("#comment_count").html(parseInt(("0")));
+ jQuery("html, body").animate({scrollTop: jQuery("#list_comment").offset().top}, 1000);
+ jQuery("#comment_form").trigger("reset");
 
-// ====================== SCREEN SWITCHING ======================
-function showSignup() {
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("signup-screen").style.display = "flex";
-}
+ }
+ }
+ }
+ });
+ }
+ });
+ });</script><script>function reply_to(comment_id)
+ {
+ jQuery("#comment_form").addClass("commentBlock");
+ jQuery("#btn_cancel").removeClass("hidden");
+ jQuery("#comment_form").trigger("reset");
+ jQuery("#parent_id").val(comment_id);
+ jQuery("#comment_form").appendTo("#comment_" + comment_id);
+ }
+ function reply_all()
+ {
+ jQuery("#comment_form").trigger("reset");
+ jQuery("#parent_id").val("0");
+ jQuery("#comment_form").appendTo(".make-comment");
+ jQuery("#btn_cancel").addClass("hidden");
+ jQuery("#comment_form").removeClass("commentBlock");
+ }
+ function comment_vote(comment_id, vote)
+ {
+ jQuery(".comment_vote_row_" + comment_id).css("fontSize", 0);
+ jQuery(".comment_vote_row_" + comment_id).prop('onclick', null).off('click');
 
-function showLogin() {
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("login-screen-form").style.display = "flex";
-}
+ var comment_comment_voteajax = "/comment-vote.ajax";
+ var metadataload = {};
+ metadataload.comment_id = comment_id;
+ metadataload.vote = vote;
+ jQuery.ajax({
+ url: comment_comment_voteajax,
+ data: metadataload,
+ type: 'POST',
+ success: function (data) {
+ if (data != '')
+ {
+ var result = jQuery.parseJSON(data);
+ if (result.result === true)
+ {
+ var comment_obj = result.comment;
+ switch (vote) {
+ case "up":
+ jQuery("#comment_voteup_" + comment_id).html("+" + comment_obj.like);
+ break;
+ case "down":
+ jQuery("#comment_votedown_" + comment_id).html("-" + comment_obj.dislike);
+ break;
+ }
 
-function backToLogin() {
-    document.getElementById("signup-screen").style.display = "none";
-    document.getElementById("login-screen-form").style.display = "none";
-    document.getElementById("login-screen").style.display = "flex";
-}
+ }
+ }
+ }
+ });
+ }
+ function report_comment(comment_id)
+ {
+ jQuery("#report_comment_" + comment_id).css("fontSize", 0);
+ jQuery("#report_comment_" + comment_id).prop('onclick', null).off('click');
+ }
+</script><script>window.addEventListener("DOMContentLoaded", function () {
+ jQuery("#btn_comments_area").click(function () {
+ jQuery("html, body").animate({scrollTop: jQuery("#comment_form").offset().top}, 1000);
+ });
+ //
+ jQuery('#load_more_comment').click(function (event) {
+ event.preventDefault();
+ var page = jQuery(this).data("page");
+ var limit = jQuery(this).data("limit");
+ var sort = jQuery(this).data("sort");
+ var url = jQuery(this).data("url");
+ load_comment(page, limit, sort, url, '#list_comment', '');
+ });
+ function load_comment(page, limit, sort, url, main_contain_id, refresh) {
+ jQuery("#load_more_comment").remove();
+ jQuery(".comment-load-more").show();
+ var mainposturl = "/comment-paging.ajax";
+ var metadataload = {};
+ metadataload.page = page;
+ metadataload.limit = limit;
+ metadataload.sort = sort;
+ metadataload.url = url;
+ jQuery.ajax({
+ url: mainposturl,
+ data: metadataload,
+ type: 'GET',
+ success: function (data) {
+ jQuery(".comment-load-more").hide();
+ if (refresh === 'f5')
+ {
+ jQuery(main_contain_id).html(data);
+ } else
+ {
+ jQuery(main_contain_id).append(data);
+ }
+ jQuery('#load_more_comment').click(function (event) {
+ event.preventDefault();
+ var page = jQuery(this).data("page");
+ var limit = jQuery(this).data("limit");
+ var sort = jQuery(this).data("sort");
+ var url = jQuery(this).data("url");
+ load_comment(page, limit, sort, url, '#list_comment', '');
+ });
+ }
+ });
+ }
+ load_comment(1,5, "newest", "https://smash-karts.io/smash-karts", "#list_comment", "");
+ //
+ jQuery('#sort_by').on('change', function () {
+ load_comment(1,5, "" + this.value + "", "https://smash-karts.io/smash-karts", "#list_comment", "f5");
+ });
+ });
+</script></div> <style>.comment_loading,.comment-load-more{background:url(/themes/smash-karts/resources/images/comments/icon_loader.gif) 0 0/100% auto no-repeat;width:70px;height:50px;margin:0 auto;display:none}.replyWrap{position:relative;background:url(/themes/smash-karts/resources/images/comments/quote.png) right top no-repeat;border-top:1px solid #E8E8E8}.clearAfter{display:block;clear:both;padding:10px;min-height: 60px;}.listProfile{float:left;width:90px;padding:3px;text-align:center}.listProfile a.user{display:block;font-size:12px;}.listContent{position:relative;padding:3px;overflow:hidden}.replyWrap .left{float:left;padding:0}.replyWrap b.voteUp{color:#490}.replyWrap .rating b{font-weight:400}.replyWrap b.voteDown{color:#D62}.replyWrap .right{float:right;padding:0}.replyWrap a.icon{float:left;display:block;padding-left:20px;line-height:20px;letter-spacing:-1px;font-size:12px}.icon{padding-left:20px;background-position:left center;background-repeat:no-repeat}a.icon{border:0!important}.commentBlock{clear:both;margin-left:110px !important;padding:5px 0 0;border-top:1px solid #EEE;line-height:1.4!important;min-height:60px}.commentBlock .listProfile{width:100px!important;margin-left:0;padding-left:6px;text-align:left}.your_comment{background:#d1f4a8}.comment{background-image:url(/themes/smash-karts/resources/images/comments/comment.png)}.replyWrap a.voteUp{background-image:url(/themes/smash-karts/resources/images/comments/thumbs_up.png)}.replyWrap a.voteDown{background-image:url(/themes/smash-karts/resources/images/comments/thumbs_down.png)}.replyWrap a.report{background-position:0 2px}.replyWrap a.icon{margin-left:15px}a.fav{background-image:url(/themes/smash-karts/resources/images/comments/heart.png)}.report{background-image:url(/themes/smash-karts/resources/images/comments/report.png)}.commentLink{float:left;padding-left:35px;background:url(/themes/smash-karts/resources/images/comments/comment_comment.png) left center no-repeat;border:0;line-height:26px}#rc-imageselect{transform:scale(.77);-webkit-transform:scale(.77);transform-origin:0 0;-webkit-transform-origin:0 0}@media screen and (max-height:575px){#rc-imageselect,.g-recaptcha{transform:scale(.77);-webkit-transform:scale(.77);transform-origin:0 0;-webkit-transform-origin:0 0}}.required{color:red}input.error,textarea.error{border:1px solid red!important}div.error,label.error{font-weight:400;color:red!important;display:block}.text-normal{font-weight:400!important}.make-comment label{display:block;margin-right:12px;padding:10px 0;}#respond textarea{background-color:#fff;border:1px solid #ddd;color:#333;font-size:18px;font-size:1.8rem;font-weight:400;padding:16px;width:100%} 
+ #comments_area{text-align:left;color:#000;display: flow-root;font-size: 12px;}.form-control{display:block;color: #000;background-color: #fff;border: 2px solid #000;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.075);box-shadow:inset 0 1px 1px rgba(0,0,0,.075);-webkit-transition:border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;-o-transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s;transition:border-color ease-in-out .15s,box-shadow ease-in-out .15s}textarea.form-control{height:auto}
+ #comments_area .btn{color:#fff;font-weight:600;display:inline-block;padding:6px 12px;margin-bottom:0;font-weight:400;text-align:center;white-space:nowrap;vertical-align:middle;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;border:1px solid transparent;border-radius:4px}.btn-primary{background-color: #1067BA; border-color: #1067BA .btn-primary:hover{font-weight: bold;}.hidden{display:none}.pull-right{float:right!important}select.input-sm{line-height:30px;margin:10px} #list_comment a{color:#fff}
+ #load_more_comment { border:none;background: #1067BA;color: #fff !important;font-weight: bold; padding: 7px 0 0 0; font-size: 12px; } #comment_form{padding-top:20px} #msg{padding:10px 0;text-align:center;font-style: italic} .comment-notes{padding-bottom:10px;font-style: italic;font-size: 12px;}
+ #comment_form{clear: both;} .question-title{padding-left:15px} #sort_by{color: #000; background: #fff;}
+ #load_more_comment:hover{
+ font-weight: 700;
+ border: none;
+ }
+ #comment_form .btn{
+ background: #000;
+ border: none;
+ color: #fff;
+ font-weight: 600;
+ border: none;
+ }
+ .make-comment{margin: 10px; }
+ #list_comment{
+ width: 98%;
+ margin: 5px;
+ }
+ #comments_area{
 
-function signup() {
-    const name = document.getElementById("signup-name").value.trim().toUpperCase();
-    if (!name) return alert("ENTER A RACER NAME!");
-    
-    playerData.name = name;
-    playerData.money = 500;
-    playerData.speedLevel = 1;
-    saveData();
-    
-    document.getElementById("signup-screen").style.display = "none";
-    enterMainMenu();
-}
+ padding: 10px;
+ }
 
-function login() {
-    const name = document.getElementById("login-name").value.trim().toUpperCase();
-    if (!name) return alert("ENTER YOUR RACER NAME!");
-    
-    loadData();
-    if (playerData.name !== name) {
-        // First time login with this name
-        playerData.name = name;
-        playerData.money = 500;
-        playerData.speedLevel = 1;
-    }
-    saveData();
-    
-    document.getElementById("login-screen-form").style.display = "none";
-    enterMainMenu();
-}
+ .img .img-cirle{
 
-function enterMainMenu() {
-    // GUEST CHECK: Skip loading saved data for guests (keeps session-only data)
-    if (!playerData.name.startsWith("GUEST")) {
-        loadData();
-    }
-    
-    const displayNameEl = document.getElementById("display-name");
-    displayNameEl.textContent = playerData.name;
-    if (playerData.name.startsWith("GUEST")) {
-        displayNameEl.innerHTML += ' <span class="guest-notice">(GUEST MODE • session only)</span>';
-    }
-    
-    document.getElementById("money-display").textContent = playerData.money;
-    document.getElementById("speed-level-display").textContent = playerData.speedLevel;
-    document.getElementById("main-menu").style.display = "flex";
-}
-
-function logout() {
-    document.getElementById("main-menu").style.display = "none";
-    document.getElementById("login-screen").style.display = "flex";
-    // Reset to fresh guest/login state
-    playerData = { name: "", money: 500, speedLevel: 1, password: "" };
-}
-
-// ====================== GARAGE ======================
-function enterGarage() {
-    document.getElementById("main-menu").style.display = "none";
-    document.getElementById("garage-screen").style.display = "flex";
-    updateGarageUI();
-}
-
-function exitGarage() {
-    document.getElementById("garage-screen").style.display = "none";
-    enterMainMenu();
-}
-
-function updateGarageUI() {
-    document.getElementById("upgrade-level").textContent = playerData.speedLevel;
-    const cost = playerData.speedLevel * 150;
-    document.getElementById("upgrade-cost").textContent = cost;
-    
-    const btn = document.getElementById("upgrade-btn");
-    if (playerData.money < cost) {
-        btn.style.opacity = "0.4";
-        btn.onclick = null;
-        btn.textContent = "NOT ENOUGH MONEY";
-    } else {
-        btn.style.opacity = "1";
-        btn.onclick = buySpeedUpgrade;
-        btn.textContent = "BUY SPEED UPGRADE";
-    }
-}
-
-function buySpeedUpgrade() {
-    const cost = playerData.speedLevel * 150;
-    if (playerData.money >= cost) {
-        playerData.money -= cost;
-        playerData.speedLevel++;
-        // Only save if NOT guest
-        if (!playerData.name.startsWith("GUEST")) saveData();
-        updateGarageUI();
-        document.getElementById("money-display").textContent = playerData.money;
-        document.getElementById("speed-level-display").textContent = playerData.speedLevel;
-    }
-}
-
-// ====================== LOBBIES ======================
-let currentLobbyCode = "";
-
-function enterLobbies() {
-    document.getElementById("main-menu").style.display = "none";
-    document.getElementById("lobbies-screen").style.display = "flex";
-    
-    // Generate random lobby code
-    currentLobbyCode = Math.floor(100000 + Math.random() * 900000).toString();
-    document.getElementById("my-lobby-code").textContent = currentLobbyCode;
-}
-
-function exitLobbies() {
-    document.getElementById("lobbies-screen").style.display = "none";
-    enterMainMenu();
-}
-
-function copyLobbyCode() {
-    navigator.clipboard.writeText(currentLobbyCode).then(() => {
-        const original = document.getElementById("my-lobby-code").textContent;
-        document.getElementById("my-lobby-code").textContent = "COPIED!";
-        setTimeout(() => document.getElementById("my-lobby-code").textContent = original, 1500);
-    });
-}
-
-function joinLobby() {
-    const code = document.getElementById("join-code-input").value.trim();
-    if (code.length === 6) {
-        alert("JOINING LOBBY " + code + " • (LAN demo - starting race now!)");
-        startRace();
-    } else {
-        alert("ENTER A 6-DIGIT CODE");
-    }
-}
-
-function quickJoin() {
-    alert("JOINING PUBLIC LOBBY • (LAN demo - starting race now!)");
-    startRace();
-}
-
-// ====================== 3D GAME ENGINE ======================
-let scene, camera, renderer;
-let car, carSpeed = 0, velocityY = 0;
-let keys = {};
-let luckyBlocks = [];
-let isBoosting = false;
-let boostEndTime = 0;
-let maxSpeed = 0.8; // will be modified by upgrade level
-
-const GRAVITY = 0.6;
-const JUMP_FORCE = 18;
-
-function initThreeJS() {
-    const container = document.getElementById("game-container");
-    const canvas = document.getElementById("game-canvas");
-    
-    // Set canvas size
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    
-    renderer = new THREE.WebGLRenderer({
-        canvas: canvas,
-        antialias: true
-    });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    
-    scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x00aaff, 50, 300);
-    
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    
-    // Lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-    scene.add(ambient);
-    const sun = new THREE.DirectionalLight(0xffffaa, 1);
-    sun.position.set(30, 50, 30);
-    scene.add(sun);
-    
-    // Ground (huge race track)
-    const groundGeo = new THREE.PlaneGeometry(400, 400);
-    const groundMat = new THREE.MeshPhongMaterial({ 
-        color: 0x00ff44, 
-        shininess: 10 
-    });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.1;
-    scene.add(ground);
-    
-    // Track borders (simple walls)
-    const wallMat = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-    for (let i = -180; i <= 180; i += 40) {
-        const wall = new THREE.Mesh(new THREE.BoxGeometry(8, 12, 400), wallMat);
-        wall.position.set(i, 6, 0);
-        scene.add(wall);
-        
-        const wall2 = new THREE.Mesh(new THREE.BoxGeometry(8, 12, 400), wallMat);
-        wall2.position.set(i, 6, 0);
-        wall2.rotation.y = Math.PI;
-        scene.add(wall2);
-    }
-    
-    // Some ramps for jumping
-    const rampMat = new THREE.MeshPhongMaterial({ color: 0x8888ff });
-    const ramp1 = new THREE.Mesh(new THREE.BoxGeometry(30, 4, 30), rampMat);
-    ramp1.position.set(60, 2, 60);
-    ramp1.rotation.x = Math.PI / 6;
-    scene.add(ramp1);
-    
-    const ramp2 = new THREE.Mesh(new THREE.BoxGeometry(30, 4, 30), rampMat);
-    ramp2.position.set(-80, 2, -80);
-    ramp2.rotation.z = Math.PI / 6;
-    scene.add(ramp2);
-    
-    // Create the player car
-    car = new THREE.Group();
-    
-    // Car body
-    const bodyGeo = new THREE.BoxGeometry(4, 2, 8);
-    const bodyMat = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-    const body = new THREE.Mesh(bodyGeo, bodyMat);
-    body.position.y = 2;
-    car.add(body);
-    
-    // Cabin
-    const cabinGeo = new THREE.BoxGeometry(2.8, 1.8, 4);
-    const cabinMat = new THREE.MeshPhongMaterial({ color: 0x00ffff });
-    const cabin = new THREE.Mesh(cabinGeo, cabinMat);
-    cabin.position.set(0, 3.5, -1);
-    car.add(cabin);
-    
-    // Wheels
-    const wheelGeo = new THREE.CylinderGeometry(1, 1, 1.2, 32);
-    const wheelMat = new THREE.MeshPhongMaterial({ color: 0x111111 });
-    const positions = [
-        { x: -2.2, z: 3 },
-        { x: 2.2, z: 3 },
-        { x: -2.2, z: -3 },
-        { x: 2.2, z: -3 }
-    ];
-    
-    car.wheels = [];
-    positions.forEach(pos => {
-        const wheel = new THREE.Mesh(wheelGeo, wheelMat);
-        wheel.rotation.z = Math.PI / 2;
-        wheel.position.set(pos.x, 1.2, pos.z);
-        car.add(wheel);
-        car.wheels.push(wheel);
-    });
-    
-    car.position.set(0, 2, 0);
-    scene.add(car);
-    
-    // Initial lucky blocks
-    for (let i = 0; i < 12; i++) {
-        spawnLuckyBlock();
-    }
-    
-    // Keyboard
-    window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
-    window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
-    
-    // Resize handler
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-    
-    // Set max speed based on upgrade
-    maxSpeed = 0.5 + (playerData.speedLevel * 0.3);
-}
-
-function spawnLuckyBlock() {
-    const block = new THREE.Mesh(
-        new THREE.BoxGeometry(4, 4, 4),
-        new THREE.MeshPhongMaterial({ 
-            color: 0xffff00,
-            emissive: 0xffaa00,
-            shininess: 100
-        })
-    );
-    
-    // Random position on track (ground or slightly in sky)
-    block.position.x = -160 + Math.random() * 320;
-    block.position.z = -160 + Math.random() * 320;
-    block.position.y = Math.random() > 0.6 ? 20 + Math.random() * 30 : 3; // sky or ground
-    
-    // Add a ? mark using simple geometry (small box on top)
-    const question = new THREE.Mesh(
-        new THREE.PlaneGeometry(2, 2),
-        new THREE.MeshPhongMaterial({ color: 0x000000, side: THREE.DoubleSide })
-    );
-    question.position.y = 2.5;
-    block.add(question);
-    
-    scene.add(block);
-    luckyBlocks.push(block);
-    return block;
-}
-
-function updateCar() {
-    let accel = 0.15;
-    let turnRate = 0.045;
-    
-    // Boost override
-    if (isBoosting && Date.now() < boostEndTime) {
-        accel = 0.45;
-        maxSpeed = 1.8;
-    } else if (isBoosting) {
-        isBoosting = false;
-        maxSpeed = 0.5 + (playerData.speedLevel * 0.3);
-    }
-    
-    // Forward / backward
-    if (keys['w'] || keys['arrowup']) {
-        carSpeed = Math.min(carSpeed + accel, maxSpeed);
-    } else if (keys['s'] || keys['arrowdown']) {
-        carSpeed = Math.max(carSpeed - accel * 1.8, -maxSpeed / 1.8);
-    } else {
-        carSpeed *= 0.92; // natural slowdown
-    }
-    
-    // Turning
-    if ((keys['a'] || keys['arrowleft']) && Math.abs(carSpeed) > 0.1) {
-        car.rotation.y += turnRate * (carSpeed > 0 ? 1 : -1);
-    }
-    if ((keys['d'] || keys['arrowright']) && Math.abs(carSpeed) > 0.1) {
-        car.rotation.y -= turnRate * (carSpeed > 0 ? 1 : -1);
-    }
-    
-    // Move car
-    const moveX = Math.sin(car.rotation.y) * carSpeed;
-    const moveZ = Math.cos(car.rotation.y) * carSpeed;
-    car.position.x += moveX;
-    car.position.z += moveZ;
-    
-    // Jump
-    if ((keys[' '] || keys['space']) && car.position.y <= 2.1) {
-        velocityY = JUMP_FORCE;
-    }
-    
-    // Gravity & vertical movement
-    velocityY -= GRAVITY;
-    car.position.y += velocityY;
-    
-    // Ground collision
-    if (car.position.y < 2) {
-        car.position.y = 2;
-        velocityY = 0;
-    }
-    
-    // Wheel spin animation
-    const wheelSpin = carSpeed * 8;
-    car.wheels.forEach(w => {
-        w.rotation.x += wheelSpin;
-    });
-    
-    // Update speedometer
-    document.getElementById("speedometer").textContent = Math.abs(Math.floor(carSpeed * 120));
-    
-    // Camera follow (third person)
-    const idealOffset = new THREE.Vector3(0, 18, 35);
-    idealOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), car.rotation.y);
-    camera.position.set(
-        car.position.x + idealOffset.x,
-        car.position.y + idealOffset.y,
-        car.position.z + idealOffset.z
-    );
-    camera.lookAt(car.position.x, car.position.y + 4, car.position.z);
-}
-
-function checkPowerUps() {
-    for (let i = luckyBlocks.length - 1; i >= 0; i--) {
-        const block = luckyBlocks[i];
-        const distance = car.position.distanceTo(block.position);
-        
-        if (distance < 6) {
-            // COLLECT!
-            scene.remove(block);
-            luckyBlocks.splice(i, 1);
-            
-            // Random power-up (for now only speed boost)
-            triggerSpeedBoost();
-            
-            // Respawn new one
-            setTimeout(() => {
-                if (luckyBlocks.length < 12) spawnLuckyBlock();
-            }, 1200);
-            
-            return;
-        }
-        
-        // If in sky, make it fall
-        if (block.position.y > 3) {
-            block.position.y -= 0.6;
-            if (block.position.y < 3) block.position.y = 3;
-        }
-    }
-}
-
-function triggerSpeedBoost() {
-    isBoosting = true;
-    boostEndTime = Date.now() + 4200;
-    
-    // Show big notice
-    const notice = document.getElementById("powerup-notice");
-    notice.style.display = "block";
-    notice.textContent = "SPEED BOOST!";
-    setTimeout(() => notice.style.display = "none", 2200);
-    
-    // Temporary extra money for fun (only save if not guest)
-    if (Math.random() > 0.7) {
-        playerData.money += 50;
-        if (!playerData.name.startsWith("GUEST")) saveData();
-    }
-}
-
-function updateNameLabel() {
-    const label = document.getElementById("name-label");
-    label.textContent = playerData.name;
-    
-    // Project 3D position to 2D screen
-    const vector = new THREE.Vector3();
-    vector.setFromMatrixPosition(car.matrixWorld);
-    vector.y += 8; // above car
-    
-    vector.project(camera);
-    
-    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
-    
-    label.style.left = (x - 40) + "px";
-    label.style.top = (y - 30) + "px";
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    
-    if (!scene) return;
-    
-    updateCar();
-    checkPowerUps();
-    updateNameLabel();
-    
-    renderer.render(scene, camera);
-}
-
-function startRace() {
-    document.getElementById("lobbies-screen").style.display = "none";
-    document.getElementById("game-container").style.display = "block";
-    
-    // Load player data again (guests keep their session data)
-    document.getElementById("hud-name").textContent = playerData.name;
-    document.getElementById("name-label").style.display = "block";
-    
-    initThreeJS();
-    animate();
-}
-
-function exitRace() {
-    // Clean up Three.js
-    if (renderer) renderer.dispose();
-    scene = null;
-    car = null;
-    luckyBlocks = [];
-    
-    document.getElementById("game-container").style.display = "none";
-    enterMainMenu();
-}
-
-// Keyboard support for arrows too
-window.addEventListener('keydown', e => {
-    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
-        keys[e.key.toLowerCase()] = true;
-    }
-});
-
-// Start the whole thing
-window.onload = () => {
-    console.log('%c✅ SMASH KARTS LAN EDITION LOADED! • Guest mode enabled', 'color:#00ff88; font-size:20px; background:#000; padding:5px;');
-};
-</script>
-</body>
-</html>
+ height: 30px;
+ width: 30px;
+ }
+ .hidden{display:none !important;}
+ .commentBlock .listContent{font-size:13px !important;}
+ .listContent p{color:#fff;font-size: 14px;}
+	textarea.form-control{width: 100% !important; max-width: 380px !important;}
+#comment_form{float:left;}</style></div><img style="display:none;" src="/game-tracking-views.ajax?game_id=1" /><footer><div class="bar"><div class="bar-wrap"><ul class="links"><li><a href="#" title="Privacy">Privacy</a></li><li><a href="#" title="About">About</a></li><li><a href="#" title="Contact">Contact</a></li></ul><div class="clear"></div></div></div></footer></div><link rel=stylesheet type=text/css href=https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css><script src=https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js data-cfasync=false></script><script>window.cookieconsent.initialise({
+ "palette": {
+ "popup": {
+ "background": "#1067BA",
+ "text": "#FFFFFF"
+ },
+ "button": {
+ "background": "#1067BA",
+ "text": "#FFFFFF"
+ }
+ },
+ "theme": "edgeless",
+ "content": {
+ "message": "We use cookies and other tracking technologies to give you the best browsing experience. By visiting our website, you consent to this use.",
+ "dismiss": "Agree &amp; Close!",
+ "href": "/privacy-policy"
+ }
+ });</script><script src="/themes/smash-karts/resources/js/jquery.min.js"></script><script src="/themes/smash-karts/resources/js/jquery-migrate.min.js"></script><script src='https://www.google.com/recaptcha/api.js'></script><script type="text/javascript" src="/themes/smash-karts/resources/plugin/raty/jquery.raty.min.js"></script><script src="/themes/smash-karts/resources/js/jquery.validate.min.js"></script><script src="/themes/smash-karts/resources/js/jquery.cookie.js"></script><script type="text/javascript" src="/themes/smash-karts/resources/js/jquery.lazy.min.js"></script><script src="/themes/smash-karts/resources/js/scripts.js"></script><link rel="stylesheet" id="dashicons-css" href="/themes/smash-karts/resources/css/dash-icon/css/dashicons.css" type="text/css" media="all" /><noscript id="deferred-styles"><link rel="stylesheet" type="text/css" href="/themes/smash-karts/resources/css/ns_style.css"/></noscript><script> var loadDeferredStyles = function () {
+ var addStylesNode = document.getElementById("deferred-styles");
+ var replacement = document.createElement("div");
+ replacement.innerHTML = addStylesNode.textContent;
+ document.body.appendChild(replacement);
+ addStylesNode.parentElement.removeChild(addStylesNode);
+ };
+ var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+ if (raf) raf(function () {
+ window.setTimeout(loadDeferredStyles, 0);
+ }); else window.addEventListener('load', loadDeferredStyles); </script>
+</body></html>
